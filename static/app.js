@@ -1,7 +1,7 @@
 /* app.js - updated
    - keeps search/suggestions, infinite scroll, dark-mode
    - adds overlay + robust open/close for sidebar (mobile friendly)
-   - small event propagation fixes so clicks inside sidebar don't close it
+   - ensures close button visible and adds auto-close (8s) with interaction cancel
 */
 
 const API_BASE = ""; // same origin
@@ -20,6 +20,10 @@ let currentQuery = "";
 let currentYear = "";
 let currentType = "";
 let currentSort = "desc";
+
+// Sidebar auto-close timer handle
+let sidebarAutoCloseTimer = null;
+const SIDEBAR_AUTO_CLOSE_MS = 3000; // 3 seconds
 
 // --- helpers ---
 const debounce = (fn, delay = 300) => {
@@ -98,6 +102,7 @@ document.getElementById('howtoBtn').addEventListener('click', () => { openModal(
 const sidebar = document.getElementById('sidebar');
 const openSidebarBtn = document.getElementById('openSidebarBtn');
 const overlay = document.getElementById('overlay');
+// Make sure we read the correct id
 const sidebarCloseBtn = document.getElementById('sidebarClose');
 
 // Ensure overlay click closes sidebar
@@ -109,7 +114,11 @@ if (sidebarCloseBtn) sidebarCloseBtn.addEventListener('click', closeSidebar);
 if (sidebar) {
   sidebar.addEventListener('click', (e) => {
     e.stopPropagation();
+    // if the user interacts with sidebar, cancel the auto-close timer
+    cancelSidebarAutoClose();
   });
+  // any pointer interaction cancels auto-close
+  sidebar.addEventListener('pointerdown', () => cancelSidebarAutoClose());
 }
 
 // toggle via hamburger
@@ -121,7 +130,15 @@ openSidebarBtn.addEventListener('click', (e) => {
 
 // close on Escape
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') closeSidebar();
+  if (e.key === 'Escape') {
+    // if modal open, close that first
+    const modal = document.getElementById('modal');
+    if (modal && !modal.classList.contains('hidden')) {
+      closeModal();
+    } else {
+      closeSidebar();
+    }
+  }
 });
 
 // close sidebar when clicking outside (document)
@@ -149,6 +166,7 @@ function openSidebar() {
   sidebar.setAttribute('aria-hidden', 'false');
   overlay.setAttribute('aria-hidden', 'false');
   lockBodyScroll(true);
+  startSidebarAutoClose();
 }
 function closeSidebar() {
   if (!sidebar || !overlay) return;
@@ -157,6 +175,22 @@ function closeSidebar() {
   sidebar.setAttribute('aria-hidden', 'true');
   overlay.setAttribute('aria-hidden', 'true');
   lockBodyScroll(false);
+  cancelSidebarAutoClose();
+}
+
+function startSidebarAutoClose() {
+  cancelSidebarAutoClose();
+  // start timer to auto-close after a short period to avoid stuck-in-between states
+  sidebarAutoCloseTimer = setTimeout(() => {
+    // only close if still open and user isn't focusing inside it
+    if (sidebar && sidebar.classList.contains('open')) closeSidebar();
+  }, SIDEBAR_AUTO_CLOSE_MS);
+}
+function cancelSidebarAutoClose() {
+  if (sidebarAutoCloseTimer) {
+    clearTimeout(sidebarAutoCloseTimer);
+    sidebarAutoCloseTimer = null;
+  }
 }
 
 // Modal logic
