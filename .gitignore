@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Env / secrets
+.env
+.env.* 
+.envrc
+
+# Pyrogram/Telethon session files
+web_bot_session.*
+*.session
+*.session-journal
+
+# Virtualenvs & runtime
+venv/
+instance/
+*.sqlite3
+*.log
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+
+# Test / coverage
+.pytest_cache/
+coverage.xml
+htmlcov/
+
+# Misc
+.env
+.envrc

@@ -1,0 +1,7 @@
+flask
+pymongo
+python-dotenv
+pyrogram
+tgcrypto
+flask-cors
+gunicorn
