@@ -1,11 +1,7 @@
 /* app.js - updated
    - keeps search/suggestions, infinite scroll, dark-mode
-   - hides the visual controls section (Year/Type/Sort) from UI (kept code intact)
-   - adds sidebar close button + auto-close behavior:
-       * click outside sidebar closes it
-       * Esc key closes it
-       * clicking sidebar actions closes it
-       * clicking a suggestion or Send button closes it
+   - adds overlay + robust open/close for sidebar (mobile friendly)
+   - small event propagation fixes so clicks inside sidebar don't close it
 */
 
 const API_BASE = ""; // same origin
@@ -98,23 +94,22 @@ document.getElementById('refreshBtn').addEventListener('click', () => { resetAnd
 document.getElementById('featuresBtn').addEventListener('click', () => { openModal(featuresHtml()); closeSidebar(); });
 document.getElementById('howtoBtn').addEventListener('click', () => { openModal(howtoHtml()); closeSidebar(); });
 
-// Sidebar open/close using class 'open' and added close button
+// Sidebar elements
 const sidebar = document.getElementById('sidebar');
 const openSidebarBtn = document.getElementById('openSidebarBtn');
+const overlay = document.getElementById('overlay');
+const sidebarCloseBtn = document.getElementById('sidebarClose');
 
-// ensure sidebar exists
+// Ensure overlay click closes sidebar
+if (overlay) overlay.addEventListener('click', closeSidebar);
+// sidebar close button
+if (sidebarCloseBtn) sidebarCloseBtn.addEventListener('click', closeSidebar);
+
+// prevent clicks inside sidebar from closing it (stop propagation)
 if (sidebar) {
-  // create a close button at the top if not already present
-  if (!sidebar.querySelector('.sidebar-close')) {
-    const btn = document.createElement('button');
-    btn.className = 'sidebar-close';
-    btn.type = 'button';
-    btn.setAttribute('aria-label', 'Close menu');
-    btn.style.cssText = 'position:absolute; right:10px; top:8px; background:transparent; border:none; font-size:20px; cursor:pointer;';
-    btn.textContent = '✕';
-    btn.addEventListener('click', closeSidebar);
-    sidebar.insertBefore(btn, sidebar.firstChild);
-  }
+  sidebar.addEventListener('click', (e) => {
+    e.stopPropagation();
+  });
 }
 
 // toggle via hamburger
@@ -124,30 +119,44 @@ openSidebarBtn.addEventListener('click', (e) => {
   else openSidebar();
 });
 
-// close sidebar when clicking outside of it
-document.addEventListener('click', (e) => {
-  const insideSidebar = e.target.closest('#sidebar');
-  const clickedHamburger = e.target.closest('#openSidebarBtn');
-  if (!insideSidebar && !clickedHamburger) {
-    closeSidebar();
-  }
-});
-
 // close on Escape
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') closeSidebar();
 });
 
+// close sidebar when clicking outside (document)
+document.addEventListener('click', (e) => {
+  const clickedHamburger = e.target.closest('#openSidebarBtn');
+  const insideSidebar = e.target.closest('#sidebar');
+  if (!insideSidebar && !clickedHamburger) {
+    // click outside -> close
+    closeSidebar();
+  }
+});
+
 // helpers
+function lockBodyScroll(lock) {
+  if (lock) {
+    document.body.style.overflow = 'hidden';
+  } else {
+    document.body.style.overflow = '';
+  }
+}
 function openSidebar() {
-  if (!sidebar) return;
+  if (!sidebar || !overlay) return;
   sidebar.classList.add('open');
+  overlay.classList.add('visible');
   sidebar.setAttribute('aria-hidden', 'false');
+  overlay.setAttribute('aria-hidden', 'false');
+  lockBodyScroll(true);
 }
 function closeSidebar() {
-  if (!sidebar) return;
+  if (!sidebar || !overlay) return;
   sidebar.classList.remove('open');
+  overlay.classList.remove('visible');
   sidebar.setAttribute('aria-hidden', 'true');
+  overlay.setAttribute('aria-hidden', 'true');
+  lockBodyScroll(false);
 }
 
 // Modal logic
