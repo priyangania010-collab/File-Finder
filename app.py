@@ -16,12 +16,6 @@ load_dotenv()
 MONGO_URI = os.getenv("MONGO_URI")
 DB_NAME = os.getenv("DB_NAME")
 COLLECTION_NAME = os.getenv("COLLECTION_NAME")
-SEARCH_FIELD_NAME = os.getenv("SEARCH_FIELD_NAME", "file_name")
-KOYEB_URL = os.getenv("KOYEB_URL", "").rstrip('/')
-API_ID = os.getenv("API_ID")
-API_HASH = os.getenv("API_HASH")
-BOT_TOKEN = os.getenv("BOT_TOKEN")
-BIN_CHANNEL_ID = os.getenv("BIN_CHANNEL_ID")
 
 # Basic env check
 if not all([MONGO_URI, DB_NAME, COLLECTION_NAME, KOYEB_URL, API_ID, API_HASH, BOT_TOKEN, BIN_CHANNEL_ID]):
