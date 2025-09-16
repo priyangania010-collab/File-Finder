@@ -129,7 +129,7 @@
       max-width: 92%;
       background: var(--card);
       box-shadow: var(--shadow);
-      padding: 16px;
+      padding: 16px 56px 16px 16px; /* extra right padding to ensure content doesn't overlap close button */
       transform: translateX(-110%);
       transition: transform .28s ease;
       z-index: 70;
@@ -140,26 +140,28 @@
     .sidebar h3 { margin-top:0; }
     .sidebar button { margin-top:8px; display:block; }
 
+    /* changed: ensure close button is fixed within sidebar and visible */
     .sidebar .sidebar-close {
       position: absolute;
-      right: 8px;
-      top: 8px;
+      right: 12px;
+      top: 10px;
       border: none;
       background: transparent;
-      font-size: 22px;
+      font-size: 24px;
       cursor: pointer;
       color: var(--muted);
-      padding: 4px;
-      z-index: 75;
+      padding: 6px;
+      z-index: 200; /* ensure it is above overlay/footer */
     }
 
-    /* main layout */
+    /* main layout - add bottom padding so fixed footer doesn't overlap content on small screens */
     .main {
       flex:1;
       padding:18px;
       margin-left: 0; /* content flows under fixed sidebar on mobile */
       transition: margin-left .28s ease;
       min-height: calc(100vh - 120px);
+      padding-bottom: 92px; /* reserve space for footer so it doesn't appear mid-list */
     }
 
     /* controls and cards */
@@ -187,14 +189,18 @@
 
     .loading, .end { text-align:center; padding:12px; color:var(--muted); display:none; }
 
-    /* footer */
+    /* footer: make it fixed at bottom so it never pushes into the content flow */
     .site-footer {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
       padding:14px;
       text-align:center;
       color:var(--muted);
       background:var(--card);
       border-top:1px solid rgba(14,42,71,0.03);
-      margin-top:auto;
+      z-index: 50;
     }
 
     /* modal */
@@ -223,7 +229,7 @@
 <body>
   <header class="topbar">
     <button id="openSidebarBtn" class="hamburger" aria-label="Open menu">☰</button>
-    <div class="brand">Dabba Media Finder</div>
+    <div class="brand">File Finder</div>
 
     <div class="search-area">
       <input id="searchInput" type="search" placeholder="search among n files..." autocomplete="off" />
@@ -247,6 +253,7 @@
     <h3>Credits</h3>
    <p>Developer: <strong><a href="https://gist.github.com/dhyeyppatel/024f3c59d671ba640297d5201abe6501">Dhyey Patel</a></strong></p>
 <p>Project: <a href="https://t.me/commonthread">Common Thread</a></p>
+<p>This will auto-close in 3 seconds...</p>
 <hr>
     <button id="refreshBtn">Refresh</button>
     <button id="featuresBtn">Features</button>
