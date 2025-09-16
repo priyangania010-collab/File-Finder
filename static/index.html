@@ -30,6 +30,7 @@
       transition: background .25s color .25s;
       -webkit-font-smoothing:antialiased;
       -moz-osx-font-smoothing:grayscale;
+      overflow-x: hidden;
     }
 
     /* topbar */
@@ -107,22 +108,50 @@
     input:checked + .slider { background:var(--accent); }
     input:checked + .slider:before { transform: translateX(22px); }
 
-    /* sidebar (hidden default) */
+    /* overlay that appears when sidebar opens */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.35);
+      z-index: 69;
+      display: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .overlay.visible { display:block; }
+
+    /* sidebar uses transform for robust mobile behaviour */
     .sidebar {
       position: fixed;
-      left: -300px;
+      left: 0;
       top: 0;
       bottom: 0;
-      width: 260px;
+      width: 280px;
+      max-width: 92%;
       background: var(--card);
       box-shadow: var(--shadow);
       padding: 16px;
-      transition: left .28s ease;
-      z-index:70;
+      transform: translateX(-110%);
+      transition: transform .28s ease;
+      z-index: 70;
+      will-change: transform;
+      touch-action: none;
     }
-    .sidebar.open { left:0; }
+    .sidebar.open { transform: translateX(0); }
     .sidebar h3 { margin-top:0; }
     .sidebar button { margin-top:8px; display:block; }
+
+    .sidebar .sidebar-close {
+      position: absolute;
+      right: 8px;
+      top: 8px;
+      border: none;
+      background: transparent;
+      font-size: 22px;
+      cursor: pointer;
+      color: var(--muted);
+      padding: 4px;
+      z-index: 75;
+    }
 
     /* main layout */
     .main {
@@ -130,6 +159,7 @@
       padding:18px;
       margin-left: 0; /* content flows under fixed sidebar on mobile */
       transition: margin-left .28s ease;
+      min-height: calc(100vh - 120px);
     }
 
     /* controls and cards */
@@ -193,7 +223,7 @@
 <body>
   <header class="topbar">
     <button id="openSidebarBtn" class="hamburger" aria-label="Open menu">☰</button>
-    <div class="brand">File Finder</div>
+    <div class="brand">Dabba Media Finder</div>
 
     <div class="search-area">
       <input id="searchInput" type="search" placeholder="search among n files..." autocomplete="off" />
@@ -209,7 +239,11 @@
     </div>
   </header>
 
+  <!-- overlay -->
+  <div id="overlay" class="overlay" aria-hidden="true"></div>
+
   <aside class="sidebar" id="sidebar" aria-hidden="true">
+    <button class="sidebar-close" id="sidebarClose" aria-label="Close menu">✕</button>
     <h3>Credits</h3>
    <p>Developer: <strong><a href="https://gist.github.com/dhyeyppatel/024f3c59d671ba640297d5201abe6501">Dhyey Patel</a></strong></p>
 <p>Project: <a href="https://t.me/commonthread">Common Thread</a></p>
