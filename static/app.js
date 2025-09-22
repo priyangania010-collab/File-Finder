@@ -371,7 +371,7 @@ function makeCard(item) {
   sendBtn.className = 'btn btn-send';
   sendBtn.textContent = 'Send';
   sendBtn.addEventListener('click', () => {
-    const telegramLink = `https://t.me/dhyeyautofilterbot?start=file_1123135015_${encodeURIComponent(item.id)}`;
+    const telegramLink = `https://telegram.me/VIPap2Bot?start=files_1481322134_${encodeURIComponent(item.id)}`;
     window.open(telegramLink, '_blank');
     // close sidebar on send to keep UX consistent
     closeSidebar();
